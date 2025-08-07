@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Tarefas do Condomínio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Estilos originais */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin-top: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline-primary {
+            color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table th {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            font-weight: 600;
+            border-top: none;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        
+        .badge {
+            padding: 6px 10px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            border-radius: 8px;
+        }
+        
+        .bg-success {
+            background-color: var(--success-color) !important;
+        }
+        
+        .bg-warning {
+            background-color: var(--warning-color) !important;
+            color: white !important;
+        }
+
+        .bg-danger {
+            background-color: var(--accent-color) !important;
+        }
+        
+        .nav-tabs {
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .nav-tabs .nav-link {
+            color: var(--dark-color);
+            font-weight: 500;
+            border: none;
+            padding: 12px 20px;
+            position: relative;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--secondary-color);
+            background-color: transparent;
+            border-bottom: 3px solid var(--secondary-color);
+        }
+        
+        .nav-tabs .nav-link:hover:not(.active) {
+            color: var(--secondary-color);
+        }
+        
+        .tab-content {
+            border-radius: 0 0 10px 10px;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .modal-content {
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 10px 15px;
+            border: 1px solid #ced4da;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+        }
+
+        .btn-action {
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0 3px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-action:hover {
+            transform: scale(1.1);
+        }
+        
+        .status-badge {
+            min-width: 100px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .comentario-item {
+            border-bottom: 1px solid #eee;
+            padding: 12px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .comentario-item:last-child {
+            border-bottom: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: #bdc3c7;
+            margin-bottom: 15px;
+        }
+
+        /* --- Melhorias para Mobile --- */
+        
+        /* Aumenta a fonte e o padding em telas pequenas para melhor legibilidade */
+        @media (max-width: 767.98px) {
+            body {
+                font-size: 14px;
+            }
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            .container {
+                margin-top: 15px;
+            }
+            .table th, .table td {
+                padding: 0.5rem;
+            }
+            .btn-action {
+                width: 32px;
+                height: 32px;
+                font-size: 0.8rem;
+            }
+            .btn-primary {
+                width: 100%;
+                margin-top: 10px;
+            }
+            .btn-primary i {
+                margin-right: 0 !important;
+            }
+            /* Esconde as colunas que não são essenciais em telas pequenas */
+            .table-mobile-hidden {
+                display: none;
+            }
+            /* Aumenta o tamanho dos ícones nos botões */
+            .btn-action i {
+                font-size: 1.1rem;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="d-flex justify-content-between align-items-center flex-column flex-md-row">
+                <div>
+                    <h1 class="h3 mb-1"><i class="fas fa-building me-2"></i> Gerenciador de Tarefas</h1>
+                    <p class="mb-0 opacity-75">Controle de manutenções e serviços do condomínio</p>
+                </div>
+                <button type="button" class="btn btn-light btn-primary mt-3 mt-md-0" data-bs-toggle="modal" data-bs-target="#novaTarefaModal" id="btn-nova-tarefa">
+                    <i class="fas fa-plus me-2"></i> Nova Tarefa
+                </button>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0"><i class="fas fa-tasks me-2"></i> Tarefas Ativas</h2>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 30%;">Tarefa</th>
+                                <th class="table-mobile-hidden" style="width: 15%;">Custo</th>
+                                <th class="table-mobile-hidden" style="width: 15%;">Início</th>
+                                <th class="table-mobile-hidden" style="width: 15%;">Conclusão</th>
+                                <th style="width: 25%;">Status</th>
+                                <th style="width: 20%;" class="text-end">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-tarefas">
+                            <tr id="empty-state">
+                                <td colspan="6">
+                                    <div class="empty-state py-5">
+                                        <i class="fas fa-clipboard-list"></i>
+                                        <h4 class="h5 mt-3">Nenhuma tarefa cadastrada</h4>
+                                        <p class="mb-0">Clique no botão "Nova Tarefa" para começar</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="novaTarefaModal" tabindex="-1" aria-labelledby="novaTarefaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="novaTarefaModalLabel"><i class="fas fa-plus-circle me-2"></i> Nova Tarefa</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-tarefa">
+                        <input type="hidden" id="tarefa-id">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nome-tarefa" class="form-label"><i class="fas fa-heading me-2"></i>Nome da Tarefa</label>
+                                <input type="text" class="form-control" id="nome-tarefa" placeholder="Ex: Pintura do prédio" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="custo-tarefa" class="form-label"><i class="fas fa-dollar-sign me-2"></i>Custo (R$)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    <input type="number" class="form-control" id="custo-tarefa" step="0.01" placeholder="0,00" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="data-inicio" class="form-label"><i class="fas fa-calendar-day me-2"></i>Data de Início</label>
+                                <input type="date" class="form-control" id="data-inicio" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="data-conclusao" class="form-label"><i class="fas fa-calendar-check me-2"></i>Data de Conclusão</label>
+                                <input type="date" class="form-control" id="data-conclusao" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="status-tarefa" class="form-label"><i class="fas fa-info-circle me-2"></i>Status</label>
+                            <select class="form-select" id="status-tarefa">
+                                <option value="Em Andamento">Em Andamento</option>
+                                <option value="Concluída">Concluída</option>
+                            </select>
+                        </div>
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="button" class="btn btn-outline-secondary me-3" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Salvar Tarefa
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="comentariosModal" tabindex="-1" aria-labelledby="comentariosModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="comentariosModalLabel"><i class="fas fa-comments me-2"></i> Comentários</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h6 class="mb-4"><i class="fas fa-tasks me-2"></i> <span id="tarefa-nome-modal"></span></h6>
+                    <div class="comentarios-container" style="max-height: 300px; overflow-y: auto;">
+                        <ul id="lista-comentarios" class="list-unstyled mb-4">
+                            </ul>
+                    </div>
+                    <form id="form-comentario-modal" class="mt-3">
+                        <input type="hidden" id="comentario-tarefa-id-modal">
+                        <div class="input-group">
+                            <input type="text" id="novo-comentario-modal" class="form-control" placeholder="Escreva um comentário..." required>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Array para armazenar as tarefas (simulando um banco de dados)
+        let tasks = [];
+
+        // Elementos do DOM
+        const listaTarefas = document.getElementById('lista-tarefas');
+        const formTarefa = document.getElementById('form-tarefa');
+        const modalTitulo = document.getElementById('novaTarefaModalLabel');
+        const tarefaIdInput = document.getElementById('tarefa-id');
+        const nomeInput = document.getElementById('nome-tarefa');
+        const custoInput = document.getElementById('custo-tarefa');
+        const dataInicioInput = document.getElementById('data-inicio');
+        const dataConclusaoInput = document.getElementById('data-conclusao');
+        const statusSelect = document.getElementById('status-tarefa');
+        const emptyState = document.getElementById('empty-state');
+
+        // Elementos do DOM para os comentários
+        const listaComentarios = document.getElementById('lista-comentarios');
+        const formComentarioModal = document.getElementById('form-comentario-modal');
+        const comentarioTarefaIdInputModal = document.getElementById('comentario-tarefa-id-modal');
+        const nomeTarefaComentarioModal = document.getElementById('tarefa-nome-modal');
+
+        // --- Funções Principais ---
+
+        function renderTasks() {
+            listaTarefas.innerHTML = '';
+            
+            if (tasks.length === 0) {
+                emptyState.classList.remove('d-none');
+                listaTarefas.appendChild(emptyState);
+            } else {
+                emptyState.classList.add('d-none');
+                tasks.forEach((task, index) => {
+                    const row = document.createElement('tr');
+                    
+                    const statusBadgeClass = task.status === 'Concluída' ? 'bg-success' : 'bg-warning';
+                    const statusIcon = task.status === 'Concluída' ? 'fa-check-circle' : 'fa-spinner';
+
+                    const formatDate = (dateString) => {
+                        const date = new Date(dateString);
+                        return date.toLocaleDateString('pt-BR');
+                    };
+
+                    row.innerHTML = `
+                        <td>${task.nome}</td>
+                        <td class="table-mobile-hidden">R$ ${task.custo.toFixed(2).replace('.', ',')}</td>
+                        <td class="table-mobile-hidden">${formatDate(task.data_inicio)}</td>
+                        <td class="table-mobile-hidden">${formatDate(task.data_conclusao)}</td>
+                        <td>
+                            <span class="badge ${statusBadgeClass} status-badge">
+                                <i class="fas ${statusIcon} me-1"></i> ${task.status}
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-action btn-info editar-btn" data-bs-toggle="modal" data-bs-target="#novaTarefaModal" data-index="${index}" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-action btn-success concluir-btn" data-index="${index}" title="Concluir">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-sm btn-action btn-danger excluir-btn" data-index="${index}" title="Excluir">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button class="btn btn-sm btn-action btn-secondary comentarios-btn" data-bs-toggle="modal" data-bs-target="#comentariosModal" data-index="${index}" title="Comentários">
+                                <i class="fas fa-comment"></i> ${task.comentarios.length}
+                            </button>
+                        </td>
+                    `;
+                    listaTarefas.appendChild(row);
+                });
+            }
+
+            // Adiciona os event listeners para os botões após renderizar
+            document.querySelectorAll('.editar-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => editarTarefa(e.currentTarget.dataset.index));
+            });
+            document.querySelectorAll('.excluir-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => excluirTarefa(e.currentTarget.dataset.index));
+            });
+            document.querySelectorAll('.concluir-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => concluirTarefa(e.currentTarget.dataset.index));
+            });
+            document.querySelectorAll('.comentarios-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => carregarComentarios(e.currentTarget.dataset.index));
+            });
+        }
+
+        function adicionarOuEditarTarefa(event) {
+            event.preventDefault();
+
+            const index = tarefaIdInput.value;
+            const novaTarefa = {
+                nome: nomeInput.value,
+                custo: parseFloat(custoInput.value),
+                data_inicio: dataInicioInput.value,
+                data_conclusao: dataConclusaoInput.value,
+                status: statusSelect.value,
+                comentarios: index !== '' ? tasks[index].comentarios : []
+            };
+
+            if (index === '') {
+                tasks.push(novaTarefa);
+            } else {
+                tasks[index] = novaTarefa;
+            }
+
+            const modalElement = document.getElementById('novaTarefaModal');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            modal.hide();
+            
+            renderTasks();
+            formTarefa.reset();
+        }
+
+        function editarTarefa(index) {
+            const task = tasks[index];
+            modalTitulo.innerHTML = `<i class="fas fa-edit me-2"></i> Editar Tarefa`;
+            
+            tarefaIdInput.value = index;
+            nomeInput.value = task.nome;
+            custoInput.value = task.custo;
+            dataInicioInput.value = task.data_inicio;
+            dataConclusaoInput.value = task.data_conclusao;
+            statusSelect.value = task.status;
+        }
+
+        function excluirTarefa(index) {
+            if (confirm('Tem certeza que deseja excluir esta tarefa?')) {
+                tasks.splice(index, 1);
+                renderTasks();
+            }
+        }
+        
+        function concluirTarefa(index) {
+            if (tasks[index].status === 'Em Andamento') {
+                tasks[index].status = 'Concluída';
+            } else {
+                tasks[index].status = 'Em Andamento';
+            }
+            renderTasks();
+        }
+
+        function carregarComentarios(index) {
+            const task = tasks[index];
+            nomeTarefaComentarioModal.textContent = task.nome;
+            comentarioTarefaIdInputModal.value = index;
+            renderComentarios(task.comentarios);
+        }
+
+        function renderComentarios(comentarios) {
+            listaComentarios.innerHTML = '';
+            if (comentarios.length === 0) {
+                listaComentarios.innerHTML = `
+                    <li class="text-center text-muted py-4">
+                        <i class="fas fa-comment-slash mb-3" style="font-size: 2rem;"></i>
+                        <p class="mb-0">Nenhum comentário ainda.</p>
+                    </li>
+                `;
+            } else {
+                comentarios.forEach((comentario, index) => {
+                    const li = document.createElement('li');
+                    li.classList.add('comentario-item');
+                    li.innerHTML = `
+                        <div>${comentario}</div>
+                        <button class="btn btn-sm btn-outline-danger" onclick="excluirComentario(${comentarioTarefaIdInputModal.value}, ${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    listaComentarios.appendChild(li);
+                });
+            }
+        }
+
+        function adicionarComentario(event) {
+            event.preventDefault();
+            const index = comentarioTarefaIdInputModal.value;
+            const novoComentarioInput = document.getElementById('novo-comentario-modal');
+            const novoComentario = novoComentarioInput.value.trim();
+
+            if (novoComentario) {
+                tasks[index].comentarios.push(novoComentario);
+                novoComentarioInput.value = '';
+                renderComentarios(tasks[index].comentarios);
+                renderTasks();
+            }
+        }
+
+        function excluirComentario(taskIndex, commentIndex) {
+            if (confirm('Deseja excluir este comentário?')) {
+                tasks[taskIndex].comentarios.splice(commentIndex, 1);
+                renderComentarios(tasks[taskIndex].comentarios);
+                renderTasks();
+            }
+        }
+        
+        // --- Event Listeners ---
+
+        formTarefa.addEventListener('submit', adicionarOuEditarTarefa);
+        formComentarioModal.addEventListener('submit', adicionarComentario);
+
+        document.getElementById('novaTarefaModal').addEventListener('show.bs.modal', function () {
+            modalTitulo.innerHTML = `<i class="fas fa-plus-circle me-2"></i> Nova Tarefa`;
+            formTarefa.reset();
+            tarefaIdInput.value = '';
+        });
+        
+        document.addEventListener('DOMContentLoaded', renderTasks);
+    </script>
+</body>
+</html>
